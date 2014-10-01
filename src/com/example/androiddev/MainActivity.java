@@ -1,60 +1,70 @@
 package com.example.androiddev;
 
 import android.support.v7.app.ActionBarActivity;
-import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.SystemClock;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 
 
 public class MainActivity extends ActionBarActivity {
+	 //keep track of button presses, a main thread task
+    private int buttonPress=0;
+    TextView mButtonLabel;
 
+    //counter of time since app started, a background task
+    private long mStartTime = 0L;
+    private TextView mTimeLabel;
+    
+    //Handler to handle the message to the timer task
+    private Handler mHandler = new Handler();
+    
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);        
 
+        if (mStartTime == 0L) {
+            mStartTime = SystemClock.uptimeMillis(); 
+            mHandler.removeCallbacks(mUpdateTimeTask);
+            mHandler.postDelayed(mUpdateTimeTask, 100);
+        }
+
+        mTimeLabel = (TextView) findViewById(R.id.text);
+        mButtonLabel = (TextView) findViewById(R.id.trigger);
+
         Button startButton = (Button) findViewById(R.id.trigger);
         startButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view){
-                Thread initBkgdThread = new Thread(new Runnable() {
-                    public void run() {                      
-                        play_music();
-                    }     
-                });
-                initBkgdThread.start();
+                mButtonLabel.setText("Pressed " + ++buttonPress + " times");
             }
         });        
     }
+    
+    private Runnable mUpdateTimeTask = new Runnable() {
+        public void run() {
+            final long start = mStartTime;
+            long millis = SystemClock.uptimeMillis() - start;
+            int seconds = (int) (millis / 1000);
+            int minutes = seconds / 60;
+            seconds     = seconds % 60;
 
-    int[] notes = {R.raw.c5, R.raw.b4, R.raw.a4, R.raw.g4};
-    int NOTE_DURATION = 400; //millisec
-    MediaPlayer m_mediaPlayer;
-    private void play_music() {
-        for(int i=0; i<12; i++) {
-            //check to ensure main activity not paused
-            if(!paused) {
-                if(m_mediaPlayer != null) {m_mediaPlayer.release();} 
-                m_mediaPlayer = MediaPlayer.create(this, notes[i%4]);
-                m_mediaPlayer.start();
-                try {
-                    Thread.sleep(NOTE_DURATION);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
+            mTimeLabel.setText("" + minutes + ":" + String.format("%02d",seconds));
+            mHandler.postDelayed(this, 200);
         }
-    }
+    };
 
-    boolean paused = false;
     @Override
     protected void onPause() {
-        paused = true;
+        mHandler.removeCallbacks(mUpdateTimeTask);
         super.onPause();
-    } 
+    }
+
     @Override
     protected void onResume() {
         super.onResume();
-        paused = false;
-    }    
+        mHandler.postDelayed(mUpdateTimeTask, 100);
+    }
 }
