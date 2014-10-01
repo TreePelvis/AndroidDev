@@ -1,26 +1,36 @@
 package com.example.androiddev;
 
 import android.support.v7.app.ActionBarActivity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Button;
-import android.widget.Toast;
 import android.view.View;
+import android.widget.Button;
 
 
-public class MainActivity extends ActionBarActivity implements View.OnClickListener {
-	Button toastButton;
+
+
+public class MainActivity extends ActionBarActivity {
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         
-        toastButton = (Button) findViewById(R.id.toastcmd);
-        toastButton.setOnClickListener(this);
+        Button startButton = (Button) findViewById(R.id.play_game);
+        startButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View view) {
+                startGame();
+            }
+        });
     }
 
+    private void startGame() {
+        Intent launchGame = new Intent(this, PlayGame.class);
+        startActivity(launchGame);
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -40,12 +50,4 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
         }
         return super.onOptionsItemSelected(item);
     }
-
-
-	@Override
-	public void onClick(View v) {
-		if(toastButton.getId() == v.getId()) {
-			Toast.makeText(getApplicationContext(), "Hear, Hear!", Toast.LENGTH_SHORT).show();
-		}
-	}
 }
