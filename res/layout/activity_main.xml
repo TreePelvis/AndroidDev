@@ -9,21 +9,12 @@
     tools:context="com.example.androiddev.MainActivity" >
 
     <Button
-        android:id="@+id/play_game"
+        android:id="@+id/trigger"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="44dp"
-        android:text="@string/play_game" />
-
-    <TextView
-        android:id="@+id/startscreen_text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"
-        android:layout_marginBottom="36dp"
-        android:text="@string/startscreen_text" />
+        android:text="@string/play_music" />
 
 </RelativeLayout>

@@ -1,60 +1,60 @@
 package com.example.androiddev;
 
-import java.util.ArrayList;
-
-import android.speech.RecognizerIntent;
 import android.support.v7.app.ActionBarActivity;
-import android.content.Intent;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
-import android.widget.TextView;
-
-
 
 
 public class MainActivity extends ActionBarActivity {
-	private static final int PLAY_GAME = 1010;
-    private TextView tv; 
-    private int meaningOfLife = 42;
-    private String userName = "Douglas Adams";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        
-        tv = (TextView) findViewById(R.id.startscreen_text);
-        tv.setText(userName + ":" + meaningOfLife);
+        setContentView(R.layout.activity_main);        
 
-        //setup button listener
-        Button startButton = (Button) findViewById(R.id.play_game);
+        Button startButton = (Button) findViewById(R.id.trigger);
         startButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View view) {
-                startGame();
+            public void onClick(View view){
+                Thread initBkgdThread = new Thread(new Runnable() {
+                    public void run() {                      
+                        play_music();
+                    }     
+                });
+                initBkgdThread.start();
             }
-        });
+        });        
     }
 
-    @Override
-    protected void onActivityResult(int requestCode,
-            int resultCode, Intent data) {
-        if (requestCode == PLAY_GAME && resultCode == RESULT_OK) {
-            meaningOfLife = data.getExtras().getInt("returnInt");
-            userName = data.getExtras().getString("returnStr");
-            //show it has changed
-            tv.setText(userName + ":" + meaningOfLife);
+    int[] notes = {R.raw.c5, R.raw.b4, R.raw.a4, R.raw.g4};
+    int NOTE_DURATION = 400; //millisec
+    MediaPlayer m_mediaPlayer;
+    private void play_music() {
+        for(int i=0; i<12; i++) {
+            //check to ensure main activity not paused
+            if(!paused) {
+                if(m_mediaPlayer != null) {m_mediaPlayer.release();} 
+                m_mediaPlayer = MediaPlayer.create(this, notes[i%4]);
+                m_mediaPlayer.start();
+                try {
+                    Thread.sleep(NOTE_DURATION);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
         }
-        super.onActivityResult(requestCode, resultCode, data);
     }
 
-    private void startGame() {
-        Intent launchGame = new Intent(this, PlayGame.class);
-
-        //passing information to launched activity
-        launchGame.putExtra("meaningOfLife", meaningOfLife);
-        launchGame.putExtra("userName", userName);
-
-        startActivityForResult(launchGame, PLAY_GAME);
-    }
+    boolean paused = false;
+    @Override
+    protected void onPause() {
+        paused = true;
+        super.onPause();
+    } 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        paused = false;
+    }    
 }
