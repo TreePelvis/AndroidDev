@@ -2,8 +2,7 @@ package com.example.androiddev;
 
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.SystemClock;
+import android.os.CountDownTimer;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -15,56 +14,37 @@ public class MainActivity extends ActionBarActivity {
     TextView mButtonLabel;
 
     //counter of time since app started, a background task
-    private long mStartTime = 0L;
     private TextView mTimeLabel;
-    
-    //Handler to handle the message to the timer task
-    private Handler mHandler = new Handler();
     
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);        
-
-        if (mStartTime == 0L) {
-            mStartTime = SystemClock.uptimeMillis(); 
-            mHandler.removeCallbacks(mUpdateTimeTask);
-            mHandler.postDelayed(mUpdateTimeTask, 100);
-        }
-
+        setContentView(R.layout.main); 
+       
         mTimeLabel = (TextView) findViewById(R.id.text);
         mButtonLabel = (TextView) findViewById(R.id.trigger);
-
+        /*new Timer().schedule(new TimerTask() {
+            public void run() {
+                mTimeLabel.setText("seconds remaining: " 
+                        + sec++);                
+            }
+        }, 0, 1000);
+        */
+        new CountDownTimer(30000, 1000) {
+            public void onTick(long millisUntilFinished) {
+                mTimeLabel.setText("seconds remaining: " 
+                        + millisUntilFinished / 1000);
+                }     
+            public void onFinish() {
+                mTimeLabel.setText("done!");
+                }  
+       }.start();
+       
         Button startButton = (Button) findViewById(R.id.trigger);
         startButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view){
                 mButtonLabel.setText("Pressed " + ++buttonPress + " times");
             }
         });        
-    }
-    
-    private Runnable mUpdateTimeTask = new Runnable() {
-        public void run() {
-            final long start = mStartTime;
-            long millis = SystemClock.uptimeMillis() - start;
-            int seconds = (int) (millis / 1000);
-            int minutes = seconds / 60;
-            seconds     = seconds % 60;
-
-            mTimeLabel.setText("" + minutes + ":" + String.format("%02d",seconds));
-            mHandler.postDelayed(this, 200);
-        }
-    };
-
-    @Override
-    protected void onPause() {
-        mHandler.removeCallbacks(mUpdateTimeTask);
-        super.onPause();
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        mHandler.postDelayed(mUpdateTimeTask, 100);
     }
 }
