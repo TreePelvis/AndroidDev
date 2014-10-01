@@ -14,41 +14,47 @@ import android.widget.TextView;
 
 
 public class MainActivity extends ActionBarActivity {
-	 private static final int RECOGNIZER_EXAMPLE = 1001;
-	 private TextView tv;
+	private static final int PLAY_GAME = 1010;
+    private TextView tv; 
+    private int meaningOfLife = 42;
+    private String userName = "Douglas Adams";
 
-     protected void onCreate(Bundle savedInstanceState) {
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        tv = (TextView) findViewById(R.id.text_result);
+        
+        tv = (TextView) findViewById(R.id.startscreen_text);
+        tv.setText(userName + ":" + meaningOfLife);
 
         //setup button listener
-        Button startButton = (Button) findViewById(R.id.trigger);
+        Button startButton = (Button) findViewById(R.id.play_game);
         startButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
-                // RecognizerIntent prompts for speech and returns text                   
-                Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH); 
-                intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM); 
-                intent.putExtra(RecognizerIntent.EXTRA_PROMPT, "Say a word or phrase\nand it will show as text"); 
-                startActivityForResult(intent, RECOGNIZER_EXAMPLE); 
+                startGame();
             }
         });
     }
 
-    @Override 
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) { 
-        if (requestCode == RECOGNIZER_EXAMPLE && resultCode == RESULT_OK) { 
-            // returned data is a list of matches to the speech input
-            ArrayList<String> result = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS); 
+    @Override
+    protected void onActivityResult(int requestCode,
+            int resultCode, Intent data) {
+        if (requestCode == PLAY_GAME && resultCode == RESULT_OK) {
+            meaningOfLife = data.getExtras().getInt("returnInt");
+            userName = data.getExtras().getString("returnStr");
+            //show it has changed
+            tv.setText(userName + ":" + meaningOfLife);
+        }
+        super.onActivityResult(requestCode, resultCode, data);
+    }
 
-            //display on screen
-            tv.setText(result.toString());
-        } 
+    private void startGame() {
+        Intent launchGame = new Intent(this, PlayGame.class);
 
-        super.onActivityResult(requestCode, resultCode, data); 
-    } 
+        //passing information to launched activity
+        launchGame.putExtra("meaningOfLife", meaningOfLife);
+        launchGame.putExtra("userName", userName);
+
+        startActivityForResult(launchGame, PLAY_GAME);
+    }
 }
-
-
-
