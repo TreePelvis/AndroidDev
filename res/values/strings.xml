@@ -2,7 +2,7 @@
 <resources>
     <string name="action_settings">Settings</string>
     <string name="app_name">Android Dev</string>
-    <string name="trigger">Press Me</string>
-    <string name="text">hello</string>
+    <string name="loading">Loading...</string>
+    <string name="hello">hello</string>
 
 </resources>
